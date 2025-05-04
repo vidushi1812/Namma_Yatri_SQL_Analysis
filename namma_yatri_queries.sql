@@ -93,6 +93,151 @@ sum(customer_not_cancelled),sum(driver_not_cancelled),sum(otp_entered),sum(end_r
 from trip_details;
 
 
+--How many trips did the driver cancel ?
+select count(*) - sum(driver_not_cancelled) from trip_details;
+
+--How many trips did the customer cancel ?
+select count(*) - sum(customer_not_cancelled) from trip_details;
+
+--What is the average distance per trip ?
+select * from trips;
+
+select avg(distance) from trips;
+
+--What was the average fare per trip ?
+select avg(fare) from trips;
+
+--Total distnace travelled for all the rides
+select sum(distance) from trips;
+
+--Which payment method was used the most?
+select a.method from payment a
+inner join
+(select top 1 faremethod, count(distinct tripid) cnt
+from trips
+group by faremethod
+order by count(distinct tripid) desc) b
+on a.id = b.faremethod;
+
+
+--Through which payment mthod was the highest amount paid for the entire day?
+select a.method from payment a
+inner join
+(select top 1 faremethod, sum(fare) fare
+from trips
+group by faremethod
+order by sum(fare) desc)b
+on a.id = b.faremethod;
+
+
+--Which payment method was used to make the payment for the most expensive trip of the day?
+select a.method from payment a
+inner join
+(select top 1 *
+from trips
+order by fare desc) b
+on a.id = b.faremethod;
+
+--Between which two locations had the most no. of trips?
+select * from
+(select *, dense_rank() over(order by cnt desc)rnk
+from
+(select loc_from, loc_to, count(tripid) cnt
+from trips
+group by loc_from, loc_to)a)b
+where rnk=1;
+
+--Who were the top 5 earning drivers ?
+select * from
+(select *, dense_rank() over(order by fare desc) rnk
+from
+(select driverid, sum(fare) fare
+from trips
+group by driverid)a)b
+where rnk < 6;
+
+--Which duration had most no. of trips ?
+select * from
+(select *, rank() over(order by cnt desc) rnk
+from
+(select duration, count(distinct tripid) cnt
+from trips
+group by duration)a)b
+where rnk=1;
+
+--Which driver and customer had more no. of trips?
+select * from
+(select *, rank() over (order by cnt desc) rnk
+from
+(select driverid, custid, count(distinct tripid) cnt
+from trips
+group by driverid, custid)a) b
+where rnk=1;
+
+--What is the conversion rate for getting from Search to Estimates ?
+select sum(searches_got_estimate) * 100 / sum(searches) from trip_details;
+select * from trip_details;
+select sum(searches_for_quotes) * 100 / sum(searches_got_estimate) from trip_details;
+select sum(searches_got_quotes) * 100 / sum(searches_for_quotes) from trip_details;
+select sum(customer_not_cancelled) * 100 / sum(searches_got_quotes) from trip_details;
+
+--Which location got the highest no. of trips during each duration?
+select * from
+(select *, rank() over(partition by duration order by cnt desc) rnk		--partitioned by duration
+from
+(select duration, loc_from, count(distinct tripid) cnt from trips
+group by duration, loc_from)a)b
+where rnk=1;
+
+--Which duration got the highest no. of trips in each of the locations present?
+select * from
+(select *, rank() over(partition by loc_from order by cnt desc) rnk		--partitioned by location
+from
+(select duration, loc_from, count(distinct tripid) cnt from trips
+group by duration, loc_from)a)b
+where rnk=1;
+
+--Which area got the highest no. of fares ?
+select * from
+(select *, rank() over (order by fare desc) rnk
+from
+(select loc_from, sum(fare) fare from trips
+group by loc_from)a)b
+where rnk=1;
+
+--Which area got the highest no. of cancellations ?
+--1. Based on driver cancellations
+select * from
+(select *, rank() over(order by can desc) rnk
+from
+(select loc_from, count(*) - sum(driver_not_cancelled) can
+from trip_details
+group by loc_from)a)b
+where rnk=1;
+
+--2. Based on customer cancellations
+select * from
+(select *, rank() over(order by can desc) rnk
+from
+(select loc_from, count(*) - sum(customer_not_cancelled) can
+from trip_details
+group by loc_from)a)b
+where rnk=1;
+
+--Which duration got the highest no. of trips and highest total of fares?
+select * from
+(select *, rank() over (order by fare desc) rnk
+from
+(select duration, sum(fare) fare from trips
+group by duration)a)b
+where rnk=1;
+
+select * from
+(select *, rank() over (order by cnt desc) rnk
+from
+(select duration, count(distinct tripid) cnt from trips
+group by duration)a)b
+where rnk=1;
 
 
 
