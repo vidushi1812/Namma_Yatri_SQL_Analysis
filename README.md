@@ -30,10 +30,10 @@ The goal is to extract insights on completed trips, payment methods used, total 
 
 ## 📊 Insights & Highlights
 
-✔️ **Credit Card** was used mostly to make the payments. 
-✔️ **Gandhi Nagar** and **Ramanagaram** had the mot no. of trips.
-✔️ During **0-1** duration the max no. of trips took place. 
-✔️ In **C.V. Raman Nagar**  the trips were cancelled the most by the customers.
+- **Credit Card** was used mostly to make the payments. 
+- **Gandhi Nagar** and **Ramanagaram** had the mot no. of trips.
+- During **0-1** duration the max no. of trips took place. 
+- In **C.V. Raman Nagar**  the trips were cancelled the most by the customers.
 
 ---
 
